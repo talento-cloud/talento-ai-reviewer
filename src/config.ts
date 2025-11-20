@@ -41,10 +41,13 @@ export class Config {
       console.log(`Using default LLM_PROVIDER '${this.llmProvider}'`);
     }
 
-    this.llmApiKey = process.env.LLM_API_KEY;
+    // Check provider type before validating API key
     const isSapAiSdk = this.llmProvider === AIProviderType.SAP_AI_SDK;
-    // SAP AI SDK does not require an API key
-    if (!this.llmApiKey && !isSapAiSdk) {
+    const isVertexAi = this.llmProvider === AIProviderType.VERTEX_AI;
+
+    this.llmApiKey = process.env.LLM_API_KEY;
+    // SAP AI SDK and Vertex AI do not require an API key
+    if (!this.llmApiKey && !isSapAiSdk && !isVertexAi) {
       throw new Error("LLM_API_KEY is not set");
     }
 
@@ -55,7 +58,6 @@ export class Config {
     this.sapAiCoreBaseUrl = process.env.SAP_AI_CORE_BASE_URL;
     this.sapAiResourceGroup = process.env.SAP_AI_RESOURCE_GROUP;
 
-    const isVertexAi = this.llmProvider === AIProviderType.VERTEX_AI;
     this.gcpProjectId =
       process.env.GCP_PROJECT_ID || getInput("gcp_project_id");
     this.gcpLocation = process.env.GCP_LOCATION || getInput("gcp_location");
