@@ -11,6 +11,26 @@ runs:
   main: "dist/index.js"
 
 inputs:
+  github_token:
+    required: true
+    description: 'The GITHUB_TOKEN secret.'
+  llm_provider:
+    required: false
+    description: 'The AI provider to use (e.g., vertex-ai, ai-sdk, sap-ai-sdk).'
+    default: 'ai-sdk'
+  llm_model:
+    required: true
+    description: 'The specific AI model to use.'
+  gcp_project_id:
+    required: false
+    description: 'The Google Cloud Project ID (required for vertex-ai).'
+  gcp_location:
+    required: false
+    description: 'The Google Cloud Location (required for vertex-ai).'
+  language:
+    required: false
+    description: 'The language for the AI responses (e.g., es, en).'
+    default: 'en'
   style_guide_rules:
     required: false
     description: 'Custom style guide rules that will be enforced during review by generating critical comments'
