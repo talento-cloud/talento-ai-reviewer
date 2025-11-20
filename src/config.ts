@@ -21,7 +21,7 @@ export class Config {
   public language: string | undefined;
 
   constructor() {
-    this.githubToken = process.env.GITHUB_TOKEN;
+    this.githubToken = getInput('github_token');
     if (!this.githubToken) {
       throw new Error("GITHUB_TOKEN is not set");
     }
