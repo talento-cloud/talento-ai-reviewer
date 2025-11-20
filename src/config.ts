@@ -1,4 +1,4 @@
-import { getInput, getMultilineInput } from "@actions/core";
+import { getInput, getMultilineInput, info } from "@actions/core";
 import { AIProviderType } from "./ai";
 
 export class Config {
@@ -21,6 +21,7 @@ export class Config {
   public language: string | undefined;
 
   constructor() {
+    info(`Value of github_token input: ${getInput('github_token')}`);
     this.githubToken = getInput('github_token');
     if (!this.githubToken) {
       throw new Error("GITHUB_TOKEN is not set");
