@@ -27,10 +27,7 @@ inputs:
   gcp_location:
     required: false
     description: 'The Google Cloud Location (required for vertex-ai).'
-  language:
-    required: false
-    description: 'The language for the AI responses (e.g., es, en).'
-    default: 'en'
+
   style_guide_rules:
     required: false
     description: 'Custom style guide rules that will be enforced during review by generating critical comments'

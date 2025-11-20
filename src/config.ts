@@ -94,7 +94,7 @@ export class Config {
     console.log("[debug] loading extra inputs from .env");
 
     this.styleGuideRules = process.env.STYLE_GUIDE_RULES;
-    this.language = process.env.LANGUAGE || getInput("language");
+    this.language = "es";
   }
 
   public loadInputs() {
@@ -147,7 +147,7 @@ export default process.env.NODE_ENV === "test"
       githubServerUrl: "https://github.com",
       gcpProjectId: "mock-project-id",
       gcpLocation: "mock-location",
-      language: "en",
+      language: "es",
       loadInputs: jest.fn(),
     }
   : configInstance!;
