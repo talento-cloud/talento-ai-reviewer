@@ -28,6 +28,7 @@
     "@ai-sdk/anthropic": "^0.0.56",
     "@ai-sdk/google": "^0.0.55",
     "@ai-sdk/openai": "^0.0.72",
+    "@google-cloud/aiplatform": "^5.13.0",
     "@langchain/core": "^0.3.79",
     "@octokit/action": "^7.0.2",
     "@octokit/plugin-retry": "^7.2.1",

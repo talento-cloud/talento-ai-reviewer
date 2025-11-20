@@ -16,6 +16,9 @@ export class Config {
   public sapAiCoreBaseUrl: string | undefined;
   public sapAiResourceGroup: string | undefined;
 
+  public gcpProjectId: string | undefined;
+  public gcpLocation: string | undefined;
+
   constructor() {
     this.githubToken = process.env.GITHUB_TOKEN;
     if (!this.githubToken) {
@@ -46,6 +49,11 @@ export class Config {
     this.sapAiCoreTokenUrl = process.env.SAP_AI_CORE_TOKEN_URL;
     this.sapAiCoreBaseUrl = process.env.SAP_AI_CORE_BASE_URL;
     this.sapAiResourceGroup = process.env.SAP_AI_RESOURCE_GROUP;
+
+    const isVertexAi = this.llmProvider === AIProviderType.VERTEX_AI;
+    this.gcpProjectId = process.env.GCP_PROJECT_ID || getInput("gcp_project_id");
+    this.gcpLocation = process.env.GCP_LOCATION || getInput("gcp_location");
+
     if (
       isSapAiSdk &&
       (!this.sapAiCoreClientId ||
@@ -55,6 +63,10 @@ export class Config {
     ) {
       throw new Error(
         "SAP AI Core configuration is not set. Please set SAP_AI_CORE_CLIENT_ID, SAP_AI_CORE_CLIENT_SECRET, SAP_AI_CORE_TOKEN_URL, and SAP_AI_CORE_BASE_URL."
+      );
+    } else if (isVertexAi && (!this.gcpProjectId || !this.gcpLocation)) {
+      throw new Error(
+        "Vertex AI configuration is not set. Please set GCP_PROJECT_ID and GCP_LOCATION."
       );
     }
 
@@ -120,6 +132,8 @@ export default process.env.NODE_ENV === "test"
       sapAiResourceGroup: "default",
       githubApiUrl: "https://api.github.com",
       githubServerUrl: "https://github.com",
+      gcpProjectId: "mock-project-id",
+      gcpLocation: "mock-location",
       loadInputs: jest.fn(),
     }
   : configInstance!;

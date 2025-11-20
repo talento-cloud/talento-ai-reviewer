@@ -5,10 +5,12 @@ import { z } from "zod";
 import config from "./config";
 import { AISDKProvider } from "./providers/ai-sdk";
 import { SAPAIProvider } from "./providers/sapaicore";
+import { VertexAIProvider } from "./providers/vertexai";
 
 export enum AIProviderType {
   AI_SDK = "ai-sdk",
   SAP_AI_SDK = "sap-ai-sdk",
+  VERTEX_AI = "vertex-ai",
 }
 
 const LLM_MODELS: Record<AIProviderType, ModelConfig[]> = {
@@ -204,6 +206,11 @@ const LLM_MODELS: Record<AIProviderType, ModelConfig[]> = {
       name: "o4-mini",
     },
   ],
+  [AIProviderType.VERTEX_AI]: [
+    {
+      name: "gemini-2.5-flash",
+    },
+  ],
 };
 
 export type InferenceConfig = {
@@ -220,18 +227,20 @@ export interface AIProvider {
 class AIProviderFactory {
   static getProvider(
     provider: AIProviderType,
-    modelConfig: ModelConfig
+    modelConfig: ModelConfig,
   ): AIProvider {
     switch (provider) {
       case AIProviderType["AI_SDK"]:
         if (!modelConfig.createAi) {
           throw new Error(
-            `No createAi function found for model ${modelConfig.name}`
+            `No createAi function found for model ${modelConfig.name}`,
           );
         }
         return new AISDKProvider(modelConfig.createAi, modelConfig.name);
       case AIProviderType["SAP_AI_SDK"]:
         return new SAPAIProvider(modelConfig.name);
+      case AIProviderType["VERTEX_AI"]:
+        return new VertexAIProvider(modelConfig.name);
       default:
         throw new Error(`Unknown provider: ${provider}`);
     }
@@ -255,13 +264,13 @@ export async function runPrompt({
 }) {
   if (
     !Object.values(AIProviderType).includes(
-      config.llmProvider as AIProviderType
+      config.llmProvider as AIProviderType,
     )
   ) {
     throw new Error(
       `Unknown LLM provider: ${
         config.llmProvider
-      }. Valid providers are: ${Object.keys(AIProviderType).join(", ")}`
+      }. Valid providers are: ${Object.keys(AIProviderType).join(", ")}`,
     );
   }
   const providerType = config.llmProvider as AIProviderType;
@@ -271,7 +280,7 @@ export async function runPrompt({
     throw new Error(
       `Unknown LLM model: ${config.llmModel}. For provider ${
         config.llmProvider
-      }, supported models are: ${providerModels.map((m) => m.name).join(", ")}`
+      }, supported models are: ${providerModels.map((m) => m.name).join(", ")}`,
     );
   }
 
