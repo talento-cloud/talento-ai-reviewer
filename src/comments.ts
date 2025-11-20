@@ -72,6 +72,17 @@ export function isThreadRelevant(thread: ReviewCommentThread): boolean {
   );
 }
 
+function gatherReplies(
+  reviewComments: ReviewComment[],
+  comment: ReviewComment
+): ReviewComment[] {
+  const replies = reviewComments.filter((c) => c.in_reply_to_id === comment.id);
+  return [
+    ...replies,
+    ...replies.flatMap((reply) => gatherReplies(reviewComments, reply)),
+  ];
+}
+
 function generateCommentThreads(
   reviewComments: ReviewComment[]
 ): ReviewCommentThread[] {
@@ -80,14 +91,10 @@ function generateCommentThreads(
   );
 
   return topLevelComments.map((topLevelComment) => {
+    const allReplies = gatherReplies(reviewComments, topLevelComment);
     return {
       file: topLevelComment.path,
-      comments: [
-        topLevelComment,
-        ...reviewComments.filter(
-          (c) => c.in_reply_to_id === topLevelComment.id
-        ),
-      ],
+      comments: [topLevelComment, ...allReplies],
     };
   });
 }
