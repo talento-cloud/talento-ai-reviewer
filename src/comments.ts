@@ -27,7 +27,7 @@ export async function listPullRequestCommentThreads(
     pull_number,
   }: { owner: string; repo: string; pull_number: number }
 ): Promise<ReviewCommentThread[]> {
-  let { data: comments } = await octokit.rest.pulls.listReviewComments({
+  let comments = await octokit.paginate(octokit.rest.pulls.listReviewComments, {
     owner,
     repo,
     pull_number,
