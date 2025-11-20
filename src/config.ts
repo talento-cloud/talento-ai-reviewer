@@ -18,6 +18,7 @@ export class Config {
 
   public gcpProjectId: string | undefined;
   public gcpLocation: string | undefined;
+  public language: string | undefined;
 
   constructor() {
     this.githubToken = process.env.GITHUB_TOKEN;
@@ -82,6 +83,7 @@ export class Config {
     console.log("[debug] loading extra inputs from .env");
 
     this.styleGuideRules = process.env.STYLE_GUIDE_RULES;
+    this.language = process.env.LANGUAGE || getInput("language");
   }
 
   public loadInputs() {
@@ -134,6 +136,7 @@ export default process.env.NODE_ENV === "test"
       githubServerUrl: "https://github.com",
       gcpProjectId: "mock-project-id",
       gcpLocation: "mock-location",
+      language: "en",
       loadInputs: jest.fn(),
     }
   : configInstance!;

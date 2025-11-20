@@ -27,6 +27,11 @@ export async function runSummaryPrompt(
 ): Promise<PullRequestSummary> {
   let systemPrompt = `You are a helpful assistant that summarizes Git Pull Requests (PRs).`;
 
+  if (config.language) {
+    systemPrompt += ` All your responses MUST be in ${config.language}.`;
+  }
+
+
   systemPrompt += `Your task is to provide a full description for the PR content - title, type, description and affected file summaries.\n`;
 
   systemPrompt += `
@@ -138,6 +143,7 @@ export async function runReviewPrompt(
 <IMPORTANT INSTRUCTIONS>
 You are an experienced senior software engineer tasked with reviewing a Git Pull Request (PR). Your goal is to provide comments to improve code quality, catch typos, potential bugs or security issues, and provide meaningful code suggestions when applicable. You should not make comments about adding comments, about code formatting, about code style or give implementation suggestions.
     
+${config.language ? `All your responses MUST be in ${config.language}.` : ''}
 The review should focus on new code added in the PR code diff (lines starting with '+') and be actionable.
  
 The PR diff will have the following structure:
@@ -329,7 +335,13 @@ export async function runReviewCommentPrompt({
   commentThread,
   commentFileDiff,
 }: ReviewCommentPrompt): Promise<ReviewCommentResponse> {
-  let systemPrompt = `You are a helpful senior software engineer that reviews comments on Git Pull Requests (PRs). Your task is to provide a response to a comment on a PR review. The comment might be part of a longer comment thread, so make sure to respond to the specific comment and not the whole thread.
+  let systemPrompt = `You are a helpful senior software engineer that reviews comments on Git Pull Requests (PRs). Your task is to provide a response to a comment on a PR review. The comment might be part of a longer comment thread, so make sure to respond to the specific comment and not the whole thread.`;
+
+  if (config.language) {
+    systemPrompt += ` All your responses MUST be in ${config.language}.`;
+  }
+
+  systemPrompt += `
 
 The comment thread is specific to a line or multiple lines of code in a specific file. Keep that in mind when writing your response, but do not assume the code is complete or correct. Also, the comment might request you to suggest some changes or improvements outside the code snippet, so judge accordingly.
 
