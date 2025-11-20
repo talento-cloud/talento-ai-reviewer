@@ -21,10 +21,13 @@ export class Config {
   public language: string | undefined;
 
   constructor() {
-    info(`Value of github_token input: ${getInput('github_token')}`);
-    this.githubToken = getInput('github_token');
+    // Try to get token from input first, then fall back to environment variable
+    this.githubToken = getInput("github_token") || process.env.GITHUB_TOKEN;
+    info(`Value of github_token: ${this.githubToken ? "[SET]" : "[NOT SET]"}`);
     if (!this.githubToken) {
-      throw new Error("GITHUB_TOKEN is not set");
+      throw new Error(
+        "GITHUB_TOKEN is not set. Please provide it as an input 'github_token' or environment variable 'GITHUB_TOKEN'",
+      );
     }
 
     this.llmModel = process.env.LLM_MODEL || getInput("llm_model");
@@ -53,7 +56,8 @@ export class Config {
     this.sapAiResourceGroup = process.env.SAP_AI_RESOURCE_GROUP;
 
     const isVertexAi = this.llmProvider === AIProviderType.VERTEX_AI;
-    this.gcpProjectId = process.env.GCP_PROJECT_ID || getInput("gcp_project_id");
+    this.gcpProjectId =
+      process.env.GCP_PROJECT_ID || getInput("gcp_project_id");
     this.gcpLocation = process.env.GCP_LOCATION || getInput("gcp_location");
 
     if (
@@ -64,19 +68,23 @@ export class Config {
         !this.sapAiCoreBaseUrl)
     ) {
       throw new Error(
-        "SAP AI Core configuration is not set. Please set SAP_AI_CORE_CLIENT_ID, SAP_AI_CORE_CLIENT_SECRET, SAP_AI_CORE_TOKEN_URL, and SAP_AI_CORE_BASE_URL."
+        "SAP AI Core configuration is not set. Please set SAP_AI_CORE_CLIENT_ID, SAP_AI_CORE_CLIENT_SECRET, SAP_AI_CORE_TOKEN_URL, and SAP_AI_CORE_BASE_URL.",
       );
     } else if (isVertexAi && (!this.gcpProjectId || !this.gcpLocation)) {
       throw new Error(
-        "Vertex AI configuration is not set. Please set GCP_PROJECT_ID and GCP_LOCATION."
+        "Vertex AI configuration is not set. Please set GCP_PROJECT_ID and GCP_LOCATION.",
       );
     }
 
     // GitHub Enterprise Server support
     this.githubApiUrl =
-      process.env.GITHUB_API_URL || getInput('github_api_url') || 'https://api.github.com';
+      process.env.GITHUB_API_URL ||
+      getInput("github_api_url") ||
+      "https://api.github.com";
     this.githubServerUrl =
-      process.env.GITHUB_SERVER_URL || getInput('github_server_url') || 'https://github.com';
+      process.env.GITHUB_SERVER_URL ||
+      getInput("github_server_url") ||
+      "https://github.com";
 
     if (!process.env.DEBUG) {
       return;
