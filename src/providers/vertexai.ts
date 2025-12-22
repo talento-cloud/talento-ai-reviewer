@@ -110,19 +110,98 @@ export class VertexAIProvider implements AIProvider {
   }
 
   private cleanResponse(text: string): string {
-    // Remove markdown code blocks
+    // 1. Basic cleanup of markdown wrappers and noise
     let clean = text.replace(/```json\s*|\s*```/g, "");
-    // Remove separator lines like ***
     clean = clean.replace(/^\s*\*\*\*\s*$/gm, "");
     
-    // Attempt to extract JSON object if surrounded by noise
+    // Extract JSON object if surrounded by text
     const firstBrace = clean.indexOf('{');
     const lastBrace = clean.lastIndexOf('}');
     
     if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
         clean = clean.substring(firstBrace, lastBrace + 1);
     }
+
+    // 2. Try to parse as-is
+    try {
+      JSON.parse(clean);
+      return clean;
+    } catch (e) {
+      // 3. If parsing fails, try to repair the JSON
+      // The most common issue is unescaped newlines and quotes inside string values.
+      // We will implement a simple state machine to "re-escape" string values.
+      
+      // Also remove code blocks markers that might be inside strings (but keep content)
+      // This is a common pattern in the failure cases
+      clean = clean.replace(/```(\w+)?(\r?\n)?/g, "");
+
+      try {
+        const repaired = this.repairJsonString(clean);
+        JSON.parse(repaired); // Validate repair
+        return repaired;
+      } catch (repairError) {
+        // If repair fails, return the original cleaned text and let the caller handle the error
+        // (which will likely follow up with the original parse error)
+        return clean;
+      }
+    }
+  }
+  private repairJsonString(jsonStr: string): string {
+    let result = '';
+    let i = 0;
     
-    return clean;
+    while (i < jsonStr.length) {
+      const char = jsonStr[i];
+      
+      if (char === '"') {
+        result += '"';
+        i++;
+        
+        let stringContent = '';
+        while (i < jsonStr.length) {
+            const strChar = jsonStr[i];
+            
+            if (strChar === '"') {
+                let nextIdx = i + 1;
+                while (nextIdx < jsonStr.length && /\s/.test(jsonStr[nextIdx])) nextIdx++;
+                
+                const nextChar = nextIdx < jsonStr.length ? jsonStr[nextIdx] : '';
+                
+                if (nextChar === ':' || nextChar === ',' || nextChar === '}' || nextChar === ']') {
+                    result += stringContent;
+                    result += '"';
+                    i++;
+                    break;
+                } else {
+                    stringContent += '\\"';
+                    i++;
+                }
+            } else if (strChar === '\\') {
+                stringContent += '\\';
+                i++;
+                if (i < jsonStr.length) {
+                    stringContent += jsonStr[i];
+                    i++;
+                }
+            } else if (strChar === '\n') {
+                 stringContent += '\\n';
+                 i++;
+            } else if (strChar === '\r') {
+                 stringContent += '\\r';
+                 i++;
+            } else if (strChar === '\t') {
+                 stringContent += '\\t';
+                 i++;
+            } else {
+                stringContent += strChar;
+                i++;
+            }
+        }
+      } else {
+        result += char;
+        i++;
+      }
+    }
+    return result;
   }
 }
