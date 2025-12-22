@@ -60,7 +60,10 @@ export class Config {
 
     this.gcpProjectId =
       process.env.GCP_PROJECT_ID || getInput("gcp_project_id");
+    this.gcpProjectId =
+      process.env.GCP_PROJECT_ID || getInput("gcp_project_id");
     this.gcpLocation = process.env.GCP_LOCATION || getInput("gcp_location");
+    this.language = process.env.LANGUAGE || getInput("language") || "es";
 
     if (
       isSapAiSdk &&

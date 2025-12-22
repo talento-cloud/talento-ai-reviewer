@@ -101,10 +101,28 @@ export class VertexAIProvider implements AIProvider {
     }
 
     try {
-      const parsedResult = await parser.parse(result);
+      const cleanResult = this.cleanResponse(result);
+      const parsedResult = await parser.parse(cleanResult);
       return schema.parse(parsedResult);
     } catch (error) {
       throw new Error(`Failed to parse or validate response: ${error}`);
     }
+  }
+
+  private cleanResponse(text: string): string {
+    // Remove markdown code blocks
+    let clean = text.replace(/```json\s*|\s*```/g, "");
+    // Remove separator lines like ***
+    clean = clean.replace(/^\s*\*\*\*\s*$/gm, "");
+    
+    // Attempt to extract JSON object if surrounded by noise
+    const firstBrace = clean.indexOf('{');
+    const lastBrace = clean.lastIndexOf('}');
+    
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        clean = clean.substring(firstBrace, lastBrace + 1);
+    }
+    
+    return clean;
   }
 }
