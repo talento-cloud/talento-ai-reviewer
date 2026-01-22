@@ -453,7 +453,11 @@ In your response, return the exact text of your comment, in markdown, starting b
 
 Comments from @presubmit are yours.
 
-IMPORTANT: Do not respond with generic comments like "Thanks for the PR!" or "LGTM" or "Let me know if you need any help". If the input comment is not actionable, return an empty string. Do not offer to help unless asked.
+IMPORTANT:
+ - You should respond to any question, clarification, or feedback directed at you or related to your previous comments.
+ - If the user explains why a suggestion cannot be applied, acknowledge it.
+ - Do not respond with generic comments like "Thanks for the PR!" or "LGTM" if there is no specific question or issue to address.
+ - If the input comment is truly not actionable and requires no response (e.g., just a simple acknowledgement from the user with no further question), return an empty string.
 `;let s=t.comments[0].start_line||t.comments[0].line,n=t.comments[0].line,i=`
 Below you'll see the full comment thread, but you should focus specifically on the last comment.
 <Comment Thread>
@@ -472,7 +476,7 @@ ${t.comments.map(a=>`<author>@${a.user.login}</author>
 <Comment File Diff>
 ${Fx(e)}
 </Comment File Diff>
-`,o=C.object({response_comment:C.string().describe("Your response to the comment in markdown format, starting by mentioning the user"),action_requested:C.boolean().describe("True if the input comment required an action from you. False otherwise.")});return await ny({prompt:i,systemPrompt:r,schema:o})}var tpe=xe(Nx());var f2=`
+`,o=C.object({response_comment:C.string().describe("Your response to the comment in markdown format, starting by mentioning the user"),action_requested:C.boolean().describe("True if the input comment required an action from you (including answering a question, clarifying a point, or acknowledging a user's explanation). False otherwise.")});return await ny({prompt:i,systemPrompt:r,schema:o})}var tpe=xe(Nx());var f2=`
 <!-- presubmit.ai: overview message -->`,m2=`
 <!-- presubmit.ai: comment -->`,Ux=`
 <!-- presubmit.ai: payload --`,Lx=`
