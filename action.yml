@@ -28,6 +28,11 @@ inputs:
     required: false
     description: 'The Google Cloud Location (required for vertex-ai).'
 
+  language:
+    required: false
+    description: 'The language for the review (e.g., es, en).'
+    default: 'es'
+
   style_guide_rules:
     required: false
     description: 'Custom style guide rules that will be enforced during review by generating critical comments'
